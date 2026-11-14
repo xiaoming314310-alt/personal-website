@@ -29,7 +29,7 @@ Alex 是一位擁有 6+ 年經驗的資深全端工程師與 AI 解決方案架�
 若訪客想諮詢專案或索取履歷，請引導其寄信至 alex@example.com 或透過頁面的聯絡按鈕聯繫。
 回答請條理清晰，適當使用重點列點。`;
 
-  const DEFAULT_MODEL = 'meta-llama/llama-3.3-70b-instruct:free';
+  const DEFAULT_MODEL = 'anthropic/claude-haiku-5.5';
 
   // State
   let config = {
@@ -244,15 +244,21 @@ Alex 是一位擁有 6+ 年經驗的資深全端工程師與 AI 解決方案架�
     setLoading(true);
 
     try {
-      let botReply = '';
+      let botResponse = null;
       if (config.mode === 'gas') {
-        botReply = await callGasApi(text);
+        botResponse = await callGasApi(text);
       } else {
-        botReply = await callOpenRouterApi();
+        botResponse = await callOpenRouterApi();
       }
 
+      const botReply = typeof botResponse === 'string' ? botResponse : (botResponse.reply || '（無回傳內容）');
       appendBotMessage(botReply);
-      conversationHistory.push({ role: 'assistant', content: botReply });
+
+      const assistantEntry = { role: 'assistant', content: botReply };
+      if (botResponse && botResponse.reasoning_details) {
+        assistantEntry.reasoning_details = botResponse.reasoning_details;
+      }
+      conversationHistory.push(assistantEntry);
     } catch (err) {
       console.error('Chatbot error:', err);
       appendBotMessage(`⚠️ 連線錯誤：${err.message || '無法取得 AI 回覆，請確認 GAS 網址或網路狀態。'}`);
@@ -288,7 +294,10 @@ Alex 是一位擁有 6+ 年經驗的資深全端工程師與 AI 解決方案架�
     if (data.error) {
       throw new Error(data.error);
     }
-    return data.reply || data.text || data.message || '（無回傳內容）';
+    return {
+      reply: data.reply || data.text || data.message || '（無回傳內容）',
+      reasoning_details: data.reasoning_details || null
+    };
   }
 
   /**
@@ -320,7 +329,12 @@ Alex 是一位擁有 6+ 年經驗的資深全端工程師與 AI 解決方案架�
     }
 
     const data = await response.json();
-    return data.choices?.[0]?.message?.content || '（無回傳內容）';
+    const choice = data.choices?.[0];
+    const message = choice?.message || {};
+    return {
+      reply: message.content || '（無回傳內容）',
+      reasoning_details: message.reasoning_details || null
+    };
   }
 
   /**
