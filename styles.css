@@ -1,0 +1,48 @@
+/* Custom styles & animations */
+@keyframes bounceSubtle {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-3px);
+  }
+}
+
+.animate-bounce-subtle {
+  animation: bounceSubtle 2.5s ease-in-out infinite;
+}
+
+/* Custom Scrollbar for Chat */
+#messagesContainer::-webkit-scrollbar,
+#settingsPanel::-webkit-scrollbar {
+  width: 5px;
+}
+
+#messagesContainer::-webkit-scrollbar-track,
+#settingsPanel::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+#messagesContainer::-webkit-scrollbar-thumb,
+#settingsPanel::-webkit-scrollbar-thumb {
+  background: rgba(148, 163, 184, 0.4);
+  border-radius: 9999px;
+}
+
+#messagesContainer::-webkit-scrollbar-thumb:hover,
+#settingsPanel::-webkit-scrollbar-thumb:hover {
+  background: rgba(148, 163, 184, 0.7);
+}
+
+/* Chat bubble prose */
+.chat-bubble code {
+  background: rgba(0, 0, 0, 0.06);
+  padding: 1px 4px;
+  border-radius: 4px;
+  font-family: monospace;
+  font-size: 0.9em;
+}
+
+.dark .chat-bubble code {
+  background: rgba(255, 255, 255, 0.1);
+}
